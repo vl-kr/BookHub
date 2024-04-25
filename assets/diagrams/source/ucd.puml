@@ -1,0 +1,32 @@
+@startuml bookhub-ucd
+
+left to right direction
+skinparam packageStyle rectangle
+
+Customer --> (View books)
+Customer --> (View book detail)
+Customer --> (Add/remove book from/to wishlist)
+Customer --> (Add/remove book from/to cart)
+Customer --> (Rate books)
+Customer --> (Place an order)
+Customer --> (View order history)
+Customer --> (Change personal info)
+
+(Add default payment method) ..> (Change personal info) :extends
+(Add default shipment method) ..> (Change personal info) :extends
+(Sort/filter books) ..> (View books) :extends
+
+Admin --> (Manage books)
+Admin --> (Manage book reviews)
+Admin --> (Manage book details)
+Admin --> (Manage customers)
+Admin --> (Manage genres)
+Admin --> (Manage authors)
+Admin --> (Manage publishers)
+Admin --> (Manage payment methods)
+Admin --> (Manage shipment methods)
+Admin --> (Manage orders)
+Admin --> (Manage order statuses)
+
+Customer <|-- Admin
+@enduml

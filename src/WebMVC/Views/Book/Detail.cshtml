@@ -1,0 +1,183 @@
+﻿@using BusinessLayer.Services.Interfaces
+@using WebMVC.Models.ShoppingCart
+@using WebMVC.Models.Wishlist
+@using WebMVC.Models.Shared
+@model WebMVC.Models.Book.BookDetailViewModel
+@inject IWishlistService WishlistService
+@inject IShoppingCartService ShoppingCartService
+@inject IAuthService AuthService
+@inject ILocalIdentityUserService LocalIdentityUserService
+
+
+@{
+    ViewBag.Title = "Book detail";
+    Layout = "_Layout";
+
+    var user = await AuthService.GetUserAsync(User);
+    if (user == null)
+    {
+        return;
+    }
+    var userResult = await LocalIdentityUserService.GetLocalIdentityUser(user.Id);
+    if (userResult.Data?.Customer == null)
+    {
+        return;
+    }
+
+    var wishlist = await WishlistService.GetWishlistOfCustomer(userResult.Data.Customer.Id);
+    var shoppingCart = await ShoppingCartService.GetShoppingCartOfCustomer(userResult.Data.Customer.Id);
+
+    var wishlistItem = wishlist?.WishlistItems.FirstOrDefault(x => x.BookId == Model.Id);
+    var cartItem = shoppingCart?.ShoppingCartItems.FirstOrDefault(x => x.BookId == Model.Id);
+
+    var isInWishlist = wishlistItem != null;
+    var isInCart = cartItem != null;
+
+    var averageRating = 0.0;
+    if (Model.Reviews.Any())
+    {
+        averageRating = Model.Reviews.Average(x => x.Rating);
+    }
+    var userRatedBook = Model.Reviews.Any(x => x.Customer != null && x.Customer.Id == userResult.Data.Customer.Id);
+}
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="row">
+            <aside class="col-sm-5 border-right">
+                <article class="gallery-wrap d-flex align-items-center justify-content-center" style="height: 100%;">
+                    <div class="img-big-wrap">
+                        <div>
+                            <img src="@Model.ImageUrl" alt="Book cover image" style="max-width: 100%; height: auto; object-fit: contain;">
+                        </div>
+                    </div>
+                </article>
+            </aside>
+            <aside class="col-sm-7">
+                <article class="card-body p-5">
+                    <h3 class="title mb-3">@Model.Title</h3>
+
+                    <div class="mb-3">
+                        @{
+                            var fullStars = (int)Math.Floor(averageRating);
+                            var hasHalfStar = averageRating % 1 >= 0.5;
+                            var emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+                            for (var i = 0; i < fullStars; i++)
+                            {
+                                <i class="fas fa-star text-warning"></i>
+                            }
+                            if (hasHalfStar)
+                            {
+                                <i class="fas fa-star-half-alt text-warning"></i>
+                            }
+                            for (var i = 0; i < emptyStars; i++)
+                            {
+                                <i class="far fa-star text-warning"></i>
+                            }
+                        }
+                        <a href="#reviews" class="btn btn-outline-primary ml-3">Go to Reviews</a>
+                    </div>
+
+                    <p class="price-detail-wrap">
+                        <span class="price h3 text-warning">
+                            <span class="currency">$</span><span class="num">@Model.Price</span>
+                        </span>
+                    </p>
+
+                    <dl class="item-property">
+                        <dt>Description</dt>
+                        <dd>
+                            <p>@Model.Description</p>
+                        </dd>
+                    </dl>
+
+                    <dl class="param param-feature">
+                        <dt>Primary Genre</dt>
+                        <dd>@Model.PrimaryGenre?.Name</dd>
+                    </dl>
+
+                    <dl class="param param-feature">
+                        <dt>ISBN</dt>
+                        <dd>@Model.ISBN</dd>
+                    </dl>
+
+                    <dl class="param param-feature">
+                        <dt>Year Published</dt>
+                        <dd>@Model.YearPublished</dd>
+                    </dl>
+
+                    <dl class="param param-feature">
+                        <dt>Publisher</dt>
+                        <dd>@Model.Publisher?.Name</dd>
+                    </dl>
+
+                    <dl class="param param-feature">
+                        <dt>Authors</dt>
+                        <dd>@string.Join(", ", Model.Authors.Select(x => x.Name))</dd>
+                    </dl>
+
+                    <dl class="param param-feature">
+                        <dt>Genres</dt>
+                        <dd>@string.Join(", ", Model.Genres.Select(x => x.Name))</dd>
+                    </dl>
+
+                    @await Html.PartialAsync("../ShoppingCart/_CartButton", new CartItemViewModel { BookId = Model.Id, Quantity = cartItem?.Quantity ?? 0 })
+
+                    @await Html.PartialAsync("../Wishlist/_WishlistButton", new WishlistItemViewModel { BookId = Model.Id, IsInWishlist = isInWishlist })
+
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        @await Html.PartialAsync("_ActionDropdown", new ActionDropdownViewModel { ControllerName = "Book", EntityId = Model.Id })
+                    }
+                </article>
+            </aside>
+        </div>
+    </div>
+
+    <div id="reviews" class="mt-5">
+        @if (!userRatedBook)
+        {
+            @await Html.PartialAsync("~/Views/Review/_ReviewCreate.cshtml")
+        }
+
+        @if (Model.Reviews.Any())
+        {
+            <h3>Reviews</h3>
+            @foreach (var review in Model.Reviews)
+            {
+                <div class="card mb-3">
+                    <div class="card-header d-flex align-items-start">
+                        <strong>@review.Customer?.FirstName</strong>
+                        <div style="margin-left: 10px;">
+                            @for (var i = 0; i < review.Rating; i++)
+                            {
+                                <i class="fas fa-star text-warning"></i>
+                            }
+                            @for (var i = review.Rating; i < 5; i++)
+                            {
+                                <i class="far fa-star text-warning"></i>
+                            }
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">@review.TextReview</p>
+                    </div>
+                    @if (review.Customer != null && review.Customer.Id == userResult.Data.Customer.Id)
+                    {
+                        <div class="dropdown card-dropdown">
+                            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="@Url.Action("RemoveReview", "Review", new { id = review.Id, bookId = Model.Id })">Delete</a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        }
+    </div>
+</div>

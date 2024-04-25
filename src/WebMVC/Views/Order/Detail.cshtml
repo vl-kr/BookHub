@@ -1,0 +1,60 @@
+﻿@using WebMVC.Helpers
+@model WebMVC.Models.Order.OrderDetailViewModel
+@{
+    ViewBag.Title = "Order detail";
+    Layout = "_Layout";
+}
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="row">
+            <aside class="col-sm-7">
+                <article class="card-body p-5">
+                    <h3 class="title mb-3">Order Details</h3>
+                    <p>
+                        <strong>ID:</strong> @Model.Id
+                    </p>
+                    <p>
+                        <strong>Date:</strong> @Model.OrderDate.ToShortDateString()
+                    </p>
+                    <p>
+                        <strong>Status:</strong> <span class="badge" style="background-color: @OrderStatusMapper.ColorMap[Model.Status.Name];">@Model.Status.Name</span><br>
+                    </p>
+                    <p class="price-detail-wrap">
+                        <span class="price h3 text-warning">
+                            <span class="currency">$</span><span class="num">@Model.TotalPrice</span>
+                        </span>
+                    </p>
+
+                    <hr>
+
+                    @foreach (var orderItem in Model.OrderItems)
+                    {
+                        <div class="card h-100 mb-3">
+                            <div class="row no-gutters">
+                                <div class="col-md-4 d-flex align-items-center">
+                                    <img class="card-img-top img-fluid" src="@orderItem.Book.ImageUrl" alt="Card image cap" style="max-width: 100%; height: auto; padding: 1em;">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h5 class="card-title">@orderItem.Book.Title</h5>
+                                        <p class="card-text">
+                                            <strong>Price:</strong> <span class="currency">$</span>@orderItem.Book.Price
+                                        </p>
+                                        <p class="card-text">
+                                            <strong>Total price:</strong> <span class="currency">$</span>@orderItem.TotalPrice
+                                        </p>
+                                        <p class="card-text" id="quantity-@orderItem.Id">
+                                            <strong>Count:</strong> @orderItem.Quantity
+                                        </p>
+                                        <a href="@Url.Action("Detail", "Book", new { id = orderItem.Book.Id })" class="btn btn-primary">See details</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </article>
+            </aside>
+        </div>
+    </div>
+</div>

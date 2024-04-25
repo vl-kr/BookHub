@@ -1,0 +1,124 @@
+﻿﻿@using System.Linq.Expressions
+@using BusinessLayer.Models
+@using BusinessLayer.Services.Filtering.AuthorFilters
+@using BusinessLayer.Services.Filtering.GenreFilters
+@using BusinessLayer.Services.Filtering.PublisherFilters
+@using BusinessLayer.Services.Interfaces
+@model WebMVC.Areas.Admin.Models.Book.BookUpdateViewModel
+@inject IPublisherService PublisherService
+@inject IAuthorService AuthorService
+@inject IGenreService GenreService
+
+@{
+    ViewBag.Title = "Edit book";
+    Layout = "_Layout";
+
+    var genreResult = await GenreService.GetGenres(new PageOptions(), new GenreFilter());
+    var authorResult = await AuthorService.GetAuthors(new PageOptions(), new AuthorFilter());
+    var publisherResult = await PublisherService.GetPublishers(new PageOptions(), new PublisherFilter());
+
+    var genreList = genreResult.Data?.Select(g => new SelectListItem(g.Name, g.Id.ToString(), Model.GenreIds.Contains(g.Id))) ?? Enumerable.Empty<SelectListItem>();
+    var primaryGenreList = genreResult.Data?.Select(g => new SelectListItem(g.Name, g.Id.ToString(), Model.PrimaryGenreId == g.Id)) ?? Enumerable.Empty<SelectListItem>();
+    var authorList = authorResult.Data?.Select(a => new SelectListItem($"{a.Name}", a.Id.ToString(), Model.AuthorIds.Contains(a.Id))) ?? Enumerable.Empty<SelectListItem>();
+    var publisherList = publisherResult.Data?.Select(p => new SelectListItem(p.Name, p.Id.ToString(), Model.PublisherId == p.Id)) ?? Enumerable.Empty<SelectListItem>();
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="container">
+        <h4>Edit a book</h4>
+        <hr/>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Title, new { @class = "control-label col-md-2" })
+                    <div class="col">
+                        @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Description, new { @class = "control-label col-md-2" })
+                    <div class="col">
+                        @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ISBN, new { @class = "control-label col-md-2" })
+                    <div class="col">
+                        @Html.EditorFor(model => model.ISBN, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.ISBN, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Price, new { @class = "control-label col-md-2" })
+                    <div class="col">
+                        @Html.EditorFor(model => model.Price, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Price, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.YearPublished, new { @class = "control-label col-md-2" })
+                    <div class="col">
+                        @Html.EditorFor(model => model.YearPublished, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.YearPublished, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ImageUrl, new { @class = "control-label col-md-2" })
+                    <div class="col">
+                        @Html.EditorFor(model => model.ImageUrl, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.ImageUrl, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.PublisherId, new { @class = "control-label col-md-2" })
+                    <div class="col">
+                        @Html.DropDownListFor(model => model.PublisherId, publisherList, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.PublisherId, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.AuthorIds, new { @class = "control-label col-md-2" })
+                    <div class="col">
+                        @Html.ListBoxFor(model => model.AuthorIds, authorList, new { @class = "form-control", multiple = "multiple" })
+                        @Html.ValidationMessageFor(model => model.AuthorIds, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.PrimaryGenreId, new { @class = "control-label col-md-2" })
+                    <div class="col">
+                        @Html.DropDownListFor(model => model.PrimaryGenreId, primaryGenreList, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.PrimaryGenreId, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.GenreIds, new { @class = "control-label col-md-2" })
+                    <div class="col">
+                        @Html.ListBoxFor(model => model.GenreIds, genreList, new { @class = "form-control", multiple = "multiple" })
+                        @Html.ValidationMessageFor(model => model.GenreIds, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group" style="display: flex; justify-content: center; margin-top: 10px;">
+                    <input type="submit" value="Save" class="btn btn-primary"/>
+                </div>
+            </div>
+        </div>
+    </div>
+}

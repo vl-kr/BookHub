@@ -1,0 +1,208 @@
+@startuml bookhub-erd
+
+skinparam linetype ortho
+
+entity Address {
+  * Id : integer <<generated>>
+  --
+  * Street : text
+  * PostalCode : text
+  * City : text
+  * Country : text
+  * CreatedAt : timestamp
+  ModifiedAt : timestamp
+}
+
+entity Author {
+  * Id : integer <<generated>>
+  --
+  * Name : text
+  * CreatedAt : timestamp
+  ModifiedAt : timestamp
+}
+
+entity Review {
+  * Id : integer <<generated>>
+  --
+  BookId : integer <<FK>>
+  CustomerId : integer <<FK>>
+  * Rating : integer
+  TextReview : text
+  * CreatedAt : timestamp
+  ModifiedAt : timestamp
+}
+
+entity Book {
+  * Id : integer <<generated>>
+  --
+  PublisherId : integer <<FK>>
+  Title : text
+  Description : text
+  * Price : numeric(18,2)
+  ISBN : text
+  * YearPublished : integer
+  ImageUrl : text
+  * CreatedAt : timestamp
+  ModifiedAt : timestamp
+}
+
+entity BookAuthor {
+  * Id : integer <<generated>>
+  --
+  BookId : integer <<FK>>
+  AuthorId : integer <<FK>>
+  * CreatedAt : timestamp
+  ModifiedAt : timestamp
+}
+
+entity BookGenre {
+  * Id : integer <<generated>>
+  --
+  BookId : integer <<FK>>
+  GenreId : integer <<FK>>
+  * CreatedAt : timestamp
+  ModifiedAt : timestamp
+}
+
+entity Customer {
+  * Id : integer <<generated>>
+  --
+  * FirstName : text
+  * LastName : text
+  * Email : text
+  * PhoneNumber : text
+  * CreatedAt : timestamp
+  ModifiedAt : timestamp
+}
+
+entity Genre {
+  * Id : integer <<generated>>
+  --
+  * Name : text
+  * CreatedAt : timestamp
+  ModifiedAt : timestamp
+}
+
+entity OrderItem {
+  * Id : integer <<generated>>
+  --
+  BookId : integer <<FK>>
+  OrderId : integer <<FK>>
+  * Quantity : integer
+  * TotalPrice : numeric(18,2)
+  * CreatedAt : timestamp
+  ModifiedAt : timestamp
+}
+
+entity OrderStatus {
+  * Id : integer <<generated>>
+  --
+  Name : text
+  Color : text
+  * SendNotification : boolean
+  * CreatedAt : timestamp
+  ModifiedAt : timestamp
+}
+
+entity Order {
+  * Id : integer <<generated>>
+  --
+  OrderStatusId : integer <<FK>>
+  ShippingAddressId : integer <<FK>>
+  BillingAddressId : integer <<FK>>
+  CustomerId : integer <<FK>>
+  PaymentMethodId : integer <<FK>>
+  ShippingMethodId : integer <<FK>>
+  * TotalPrice : numeric
+  * IsPaid : boolean
+  Note : text
+  * CreatedAt : timestamp
+  ModifiedAt : timestamp
+}
+
+entity PaymentMethod {
+  * Id : integer <<generated>>
+  --
+  Name : text
+  Description : text
+  * CreatedAt : timestamp
+  ModifiedAt : timestamp
+}
+
+entity Publisher {
+  * Id : integer <<generated>>
+  --
+  Name : text
+  * CreatedAt : timestamp
+  ModifiedAt : timestamp
+}
+
+entity ShippingMethod {
+  * Id : integer <<generated>>
+  --
+  Name : text
+  Description : text
+  * CreatedAt : timestamp
+  ModifiedAt : timestamp
+}
+
+entity ShoppingCartItem {
+  * Id : integer <<generated>>
+  --
+  BookId : integer <<FK>>
+  ShoppingCartId : integer <<FK>>
+  * Quantity : integer
+  * TotalPrice : numeric
+  * CreatedAt : timestamp
+  ModifiedAt : timestamp
+}
+
+entity ShoppingCart {
+  * Id : integer <<generated>>
+  --
+  CustomerId : integer <<FK>>
+  * TotalPrice : numeric
+  * CreatedAt : timestamp
+  ModifiedAt : timestamp
+}
+
+entity WishlistItem {
+  * Id : integer <<generated>>
+  --
+  BookId : integer <<FK>>
+  WishlistId : integer <<FK>>
+  * CreatedAt : timestamp
+  ModifiedAt : timestamp
+}
+
+entity Wishlist {
+  * Id : integer <<generated>>
+  --
+  CustomerId : integer <<FK>>
+  * CreatedAt : timestamp
+  ModifiedAt : timestamp
+}
+
+BookAuthor }o--|| Author
+BookAuthor }o--|| Book
+BookGenre }o--|| Book
+BookGenre }o--|| Genre
+Book }o--|| Publisher
+Book ||-l-o{ Review
+Customer ||--o{ Review
+Order }o-u-|| Address
+Order }o-u-|| Address
+Order }o-l-|| Customer
+Order }o-r-|| OrderStatus
+Order }o--|| PaymentMethod
+Order }o--|| ShippingMethod
+Wishlist ||--o{ WishlistItem
+Wishlist ||--|| Customer
+OrderItem }o-l-|| Book
+Order ||-l-|{ OrderItem
+ShoppingCartItem }o--|| Book
+ShoppingCart ||--o{ ShoppingCartItem
+ShoppingCart ||--|| Customer
+WishlistItem }o--|| Book
+
+@enduml

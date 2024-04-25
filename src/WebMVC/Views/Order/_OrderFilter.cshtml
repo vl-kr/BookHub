@@ -1,0 +1,37 @@
+﻿@using BusinessLayer.Models
+@using BusinessLayer.Services.Interfaces
+@model BusinessLayer.Services.Filtering.OrderFilters.OrderFilter
+@inject IOrderStatusService OrderStatusService
+
+@{
+    var orderStatusResult = await OrderStatusService.GetOrderStatuses(new PageOptions());
+
+    var orderStatusList = orderStatusResult.Data?.Select(g => new SelectListItem(g.Name, g.Id.ToString())) ?? Enumerable.Empty<SelectListItem>();
+}
+
+<div style="width: 100%; float: left; padding: 10px;">
+    <div class="form-group">
+        <label for="isPaid">Is Paid</label>
+        <input type="checkbox" id="isPaid" name="orderFilter.IsPaid" value="@Model.IsPaid">
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('form').on('submit', function () {
+                var isPaidCheckbox = $('#isPaid');
+                isPaidCheckbox.val(isPaidCheckbox.is(':checked'));
+            });
+        });
+    </script>
+
+    <div class="form-group">
+        <label for="orderStatuses">Statuses</label>
+        <select class="form-control" id="orderStatuses" name="orderFilter.OrderStatuses">
+            <option value="">Select a status</option>
+            @foreach (var orderStatus in orderStatusList)
+            {
+                <option value="@orderStatus.Text">@orderStatus.Text</option>
+            }
+        </select>
+    </div>
+</div>

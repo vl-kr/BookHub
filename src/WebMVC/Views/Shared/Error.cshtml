@@ -1,0 +1,24 @@
+﻿@model WebMVC.Models.Shared.ErrorViewModel
+@{
+    ViewData["Title"] = "Error";
+    var imageUrl = Model.StatusCode != null ? $"https://httpcats.com/{(int)Model.StatusCode}.jpg" : "";
+}
+
+@* <h1 class="text-danger">Error.</h1>
+<h2 class="text-danger">An error occurred while processing your request.</h2>
+
+@if (Model.ShowRequestId)
+{
+    <p>
+        <strong>Request ID:</strong> <code>@Model.RequestId</code>
+    </p>
+} *@
+
+
+<div style="text-align: center;">
+    @if (Model.StatusCode != null)
+    {
+        <img src="@imageUrl" alt="Status Code Image" style="margin-bottom: 20px; width: 50%;"/>
+    }
+    <h2 class="text-danger">@Model.ErrorMessage</h2>
+</div>

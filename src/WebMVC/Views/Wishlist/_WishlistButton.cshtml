@@ -1,0 +1,29 @@
+﻿@model WebMVC.Models.Wishlist.WishlistItemViewModel
+
+
+<a href="javascript:void(0)" onclick="toggleWishlist('@Url.Action("AddBookToWishlist", "Wishlist", new { id = Model.BookId })', '@Url.Action("DeleteBookFromWishlist", "Wishlist", new { id = Model.BookId })', '@Model.BookId')" class="btn btn-primary">
+    <i id="wishlist-icon-@Model.BookId" class="fa-star @(Model.IsInWishlist ? "fas" : "far")"></i>
+</a>
+
+<script>
+    function toggleWishlist(addUrl, deleteUrl, bookId) {
+        var iconElement = document.getElementById('wishlist-icon-' + bookId);
+        var isInWishlist = iconElement.classList.contains('fas');
+
+        var url = isInWishlist ? deleteUrl : addUrl;
+
+        $.ajax({
+            url: url,
+            type: 'POST',
+            success: function () {
+                iconElement.classList.toggle('far');
+                iconElement.classList.toggle('fas');
+
+                showPopup(isInWishlist ? 'Book removed successfully.' : 'Book added successfully.', 'success');
+            },
+            error: function () {
+                showPopup('Error: The operation failed.', 'failure');
+            }
+        });
+    }
+</script>

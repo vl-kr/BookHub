@@ -1,0 +1,33 @@
+﻿@model WebMVC.Models.Shared.PaginationData
+
+@{
+    var routeValues = new RouteValueDictionary();
+    foreach (var queryParam in Context.Request.Query)
+    {
+        routeValues[queryParam.Key] = queryParam.Value;
+    }
+    var routeValuesDict = routeValues.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToString());
+}
+
+@if (Model.TotalPages > 1)
+{
+    <div class="join" style="display: flex; justify-content: center;">
+        @{
+            routeValuesDict["page"] = (Model.Page - 1).ToString();
+        }
+        <a asp-all-route-data="routeValuesDict" class="join-item btn @(Model.Page > 1 ? "" : "disabled")">
+            <i class="bi bi-chevron-left"></i> Prev
+        </a>
+        @for (var i = Math.Max(1, Model.Page - 3); i <= Math.Min(Model.TotalPages, Model.Page + 3); i++)
+        {
+            routeValuesDict["page"] = i.ToString();
+            <a asp-all-route-data="routeValuesDict" class="join-item btn @(i == Model.Page ? "btn-primary" : "")">@i</a>
+        }
+        @{
+            routeValuesDict["page"] = (Model.Page + 1).ToString();
+        }
+        <a asp-all-route-data="routeValuesDict" class="join-item btn @(Model.Page < Model.TotalPages ? "" : "disabled")">
+            Next <i class="bi bi-chevron-right"></i>
+        </a>
+    </div>
+}

@@ -1,0 +1,12 @@
+﻿@model WebMVC.Models.Shared.ActionDropdownViewModel
+
+<div class="dropdown card-dropdown">
+    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fas fa-ellipsis-v"></i>
+    </button>
+
+    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+        <a class="dropdown-item" href="@Url.Action("Edit", Model.ControllerName, new { area = "Admin", id = Model.EntityId })">Edit</a>
+        <a class="dropdown-item delete-btn" href="@Url.Action("Delete", Model.ControllerName, new { area = "Admin", id = Model.EntityId })">Delete</a>
+    </div>
+</div>

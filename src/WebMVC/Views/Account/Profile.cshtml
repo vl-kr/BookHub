@@ -1,0 +1,26 @@
+﻿@model WebMVC.Models.Account.ProfileViewModel
+
+@{
+    ViewBag.Title = "User profile";
+    Layout = "_Layout";
+}
+
+<section>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="row">
+                <aside class="col-md-8">
+                    <article class="card-body p-5">
+                        <h3 class="title mb-3">@Model.UserName</h3>
+                        <span class="title mb-2">Email: </span><span class="num">@Model.Email</span>
+                        <br>
+
+                        <a href="@Url.Action("Logout", "Account")" class="btn btn-primary mt-4">
+                            <i class="fas fa-arrow-left"></i> Logout
+                        </a>
+                    </article>
+                </aside>
+            </div>
+        </div>
+    </div>
+</section>

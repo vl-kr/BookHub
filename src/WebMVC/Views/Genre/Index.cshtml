@@ -1,0 +1,38 @@
+﻿@using WebMVC.Models.Shared
+@model BusinessLayer.Models.PaginationObject<DataAccessLayer.Entities.Genre>
+
+@{
+    ViewBag.Title = "Genre list";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    @await Html.PartialAsync("_SearchAndFilter", new SearchAndFilterViewModel
+           {
+               ControllerName = "Genre",
+               Filter = null,
+               FilterLocation = null,
+               Title = "Genres",
+               IncludeCreate = true,
+               SortOptions = new List<string> { "Name" }
+           })
+
+    <div class="flex flex-col gap-4 w-full mt-4">
+        @foreach (var genre in Model.Items)
+        {
+            <div class="col-sm-4 mb-4">
+                <div class="card">
+                    <div class="card-body position-relative">
+                        <h5 class="card-title">@genre.Name</h5>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            @await Html.PartialAsync("_ActionDropdown", new ActionDropdownViewModel { ControllerName = "Genre", EntityId = genre.Id })
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        @await Html.PartialAsync("_Pagination", new PaginationData { Page = Model.Page, TotalPages = Model.TotalPages })
+    </div>
+</div>

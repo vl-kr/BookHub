@@ -1,0 +1,118 @@
+﻿@model WebMVC.Models.ShoppingCart.ShoppingCartDetailViewModel
+@{
+    ViewBag.Title = "Shopping cart";
+    Layout = "_Layout";
+}
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="row">
+            <aside class="col-sm-7">
+                <article class="card-body p-5">
+                    <h3 class="title mb-3">Shopping cart</h3>
+
+                    <p class="price-detail-wrap">
+                        <span class="price h3 text-warning">
+                            <span class="currency">US $</span><span class="num">@Model.TotalPrice</span>
+                        </span>
+                    </p>
+
+                    <p class="item-count-detail-wrap">
+                        <span class="item-count h5">
+                            <span class="currency">Unique items: </span><span class="num">@Model.ShoppingCartItems.Count()</span>
+                        </span>
+                    </p>
+
+                    <p class="item-count-detail-wrap">
+                        <span class="item-count h5">
+                            <span class="currency">Total items: </span><span class="num">@Model.ShoppingCartItems.Sum(x => x.Quantity)</span>
+                        </span>
+                    </p>
+
+                    <hr>
+
+                    @foreach (var cartItem in Model.ShoppingCartItems)
+                    {
+                        <div class="card h-100 mb-3">
+                            <div class="row no-gutters">
+                                <div class="col-md-4 d-flex align-items-center">
+                                    <img class="card-img-top img-fluid" src="@cartItem.Book?.ImageUrl" alt="Card image cap" style="max-width: 100%; height: auto; padding: 1em;">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h5 class="card-title">@cartItem.Book?.Title</h5>
+                                        <p class="card-text">
+                                            <strong>Price:</strong> <span class="currency">$</span>@cartItem.Book?.Price
+                                        </p>
+                                        <p class="card-text">
+                                            <strong>Total price:</strong> <span class="currency">$</span>@cartItem.TotalPrice
+                                        </p>
+                                        <p class="card-text" id="quantity-@cartItem.Id">
+                                            <strong>Count:</strong> @cartItem.Quantity
+                                        </p>
+                                        <a href="@Url.Action("Detail", "Book", new { id = cartItem.Book?.Id })" class="btn btn-primary">See details</a>
+                                        <div class="btn-group" role="group" aria-label="Quantity controls">
+                                            <button type="button" class="btn btn-secondary change-quantity" data-id="@cartItem.Id" data-change="-1" disabled="@(cartItem.Quantity == 1)">-</button>
+                                            <button type="button" class="btn btn-secondary change-quantity" data-id="@cartItem.Id" data-change="1">+</button>
+                                        </div>
+                                        <button type="button" class="btn btn-danger delete-item" data-id="@cartItem.Id">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+
+                                        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+                                        <script>
+                                                $(document).ready(function() {
+                                                    $(".change-quantity").click(function () {
+                                                        var id = $(this).data("id");
+                                                        var currentQuantity = parseInt($("#quantity-" + id).text().replace("Count: ", ""));
+                                                        var change = $(this).data("change");
+                                                        var newQuantity = currentQuantity + change;
+
+                                                        $.ajax({
+                                                            url: '@Url.Action("ChangeItemQuantity", "ShoppingCart")',
+                                                            type: 'POST',
+                                                            data: { id: id, newQuantity: newQuantity },
+                                                            success: function (result) {
+                                                                location.reload();
+                                                            },
+                                                            error: function (xhr, status, error) {
+                                                                showPopup('Failed to change quantity.', 'failure');
+                                                            }
+                                                        });
+                                                    });
+                                                    $(".delete-item").click(function () {
+                                                        var id = $(this).data("id");
+
+                                                        $.ajax({
+                                                            url: '@Url.Action("DeleteItemFromCart", "ShoppingCart")',
+                                                            type: 'POST',
+                                                            data: { id: id },
+                                                            success: function (result) {
+                                                                location.reload();
+                                                            },
+                                                            error: function (xhr, status, error) {
+                                                                showPopup('Failed to delete item.', 'failure');
+                                                            }
+                                                        });
+                                                    });
+                                                });
+                                            </script>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.ShoppingCartItems.Any())
+                    {
+                        <a href="@Url.Action("CreateOrder", "ShoppingCart")" class="btn btn-primary">Order</a>
+                    }
+                </article>
+            </aside>
+        </div>
+    </div>
+</div>

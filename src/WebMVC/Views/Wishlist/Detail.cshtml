@@ -1,0 +1,101 @@
+﻿@using BusinessLayer.Services.Interfaces
+@model WebMVC.Models.Wishlist.WishlistDetailViewModel
+@inject IShoppingCartService ShoppingCartService
+@inject IAuthService AuthService
+@inject ILocalIdentityUserService LocalIdentityUserService
+
+@{
+    ViewBag.Title = "Wishlist";
+    Layout = "_Layout";
+}
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+
+<div class="container mt-5">
+    <div class="card">
+        <div class="row">
+            <aside class="col-sm-7">
+                <article class="card-body p-5">
+                    <h3 class="title mb-3">Wishlist</h3>
+
+                    <p class="item-count-detail-wrap">
+                        <span class="item-count h5">
+                            <span class="currency">Item count: </span><span class="num">@Model.WishlistItems.Count()</span>
+                        </span>
+                    </p>
+
+                    <hr>
+
+                    @foreach (var wishlistItem in Model.WishlistItems)
+                    {
+                        <div class="card h-100 mb-3">
+                            <div class="row no-gutters">
+                                <div class="col-md-4 d-flex align-items-center">
+                                    <img class="card-img-top img-fluid" src="@wishlistItem.Book?.ImageUrl" alt="Card image cap" style="max-width: 100%; height: auto; padding: 1em;">
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h5 class="card-title">@wishlistItem.Book?.Title</h5>
+                                        <p class="card-text">
+                                            <strong>Price:</strong> <span class="currency">$</span>@wishlistItem.Book?.Price
+                                        </p>
+                                        <a href="@Url.Action("Detail", "Book", new { id = wishlistItem.Book?.Id })" class="btn btn-primary">See details</a>
+                                        <a href="@Url.Action("MoveToCart", "Wishlist", new { id = wishlistItem.Id })" class="btn btn-primary">
+                                            <i class="fa fa-shopping-cart"></i>
+                                        </a>
+
+                                        <button type="button" class="btn btn-danger delete-item" data-id="@wishlistItem.Id">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+                                        <script>
+                                            $(document).ready(function () {
+                                                $(".delete-item").click(function () {
+                                                    var id = $(this).data("id");
+
+                                                    $.ajax({
+                                                        url: '@Url.Action("DeleteItemFromWishlist", "Wishlist")',
+                                                        type: 'POST',
+                                                        data: { id: id },
+                                                        success: function (result) {
+                                                            location.reload();
+                                                        },
+                                                        error: function (xhr, status, error) {
+
+                                                        }
+                                                    });
+                                                });
+                                                $(".clear-wishlist").click(function () {
+                                                    var id = $(this).data("id");
+
+                                                    $.ajax({
+                                                        url: '@Url.Action("DeleteItemFromWishlist", "Wishlist")',
+                                                        type: 'POST',
+                                                        data: {},
+                                                        success: function (result) {
+                                                            location.reload();
+                                                        },
+                                                        error: function (xhr, status, error) {
+
+                                                        }
+                                                    });
+                                                });
+                                            });
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.WishlistItems.Any())
+                    {
+                        <a href="@Url.Action("MoveAllToCart", "Wishlist")" class="btn btn-primary">Move all to cart</a>
+                    }
+                </article>
+            </aside>
+        </div>
+    </div>
+</div>

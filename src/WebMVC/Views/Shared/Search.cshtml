@@ -1,0 +1,85 @@
+﻿@using BusinessLayer.Services.Filtering.BookFilters
+@model WebMVC.Models.Shared.GlobalSearchViewModel
+
+<h1>Search results for '@Model.SearchTerm'</h1>
+
+<div class="container">
+    @if (Model.Results.Genres.Any())
+    {
+        <h3>Genres</h3>
+        <div class="row">
+            @foreach (var genre in Model.Results.Genres)
+            {
+                <div class="col-sm-3">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">@genre.Name</h5>
+                            <a href="@Url.Action("Index", "Book", new BookFilter { Genres = genre.Name })" class="btn btn-primary">
+                                Browse books <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (Model.Results.Authors.Any())
+    {
+        <h3>Authors</h3>
+        <div class="row">
+            @foreach (var author in Model.Results.Authors)
+            {
+                <div class="col-sm-3">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">@author.Name</h5>
+                            <a href="@Url.Action("Index", "Book", new BookFilter { Authors = author.Name })" class="btn btn-primary">
+                                Browse books <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (Model.Results.Publishers.Any())
+    {
+        <h3>Publishers</h3>
+        <div class="row">
+            @foreach (var publisher in Model.Results.Publishers)
+            {
+                <div class="col-sm-3">
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <h5 class="card-title">@publisher.Name</h5>
+                            <a href="@Url.Action("Index", "Book", new BookFilter { Publishers = publisher.Name })" class="btn btn-primary">
+                                Browse books <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (Model.Results.Books.Any())
+    {
+        <h3>Books</h3>
+        <div class="row">
+            @foreach (var book in Model.Results.Books)
+            {
+                <div class="col-sm-2">
+                    <div class="card mb-2">
+                        <img class="card-img-top" src="@book.ImageUrl" alt="Card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title">@book.Title</h5>
+                            <a href="@Url.Action("Detail", "Book", new { id = book.Id })" class="btn btn-primary">See details</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

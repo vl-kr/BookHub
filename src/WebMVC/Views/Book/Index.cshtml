@@ -1,0 +1,130 @@
+﻿@using BusinessLayer.Services.Filtering.BookFilters
+@using BusinessLayer.Services.Interfaces
+@using WebMVC.Models.Shared
+@using WebMVC.Models.ShoppingCart
+@using WebMVC.Models.Wishlist
+@using WebMVC.Helpers
+@model BusinessLayer.Models.PaginationObject<DataAccessLayer.Entities.Book>
+@inject IWishlistService WishlistService
+@inject IShoppingCartService ShoppingCartService
+@inject IAuthService AuthService
+@inject ILocalIdentityUserService LocalIdentityUserService
+
+
+@{
+    ViewBag.Title = "Book grid";
+    Layout = "_Layout";
+
+    var user = await AuthService.GetUserAsync(User);
+    if (user == null)
+    {
+        return;
+    }
+    var userResult = await LocalIdentityUserService.GetLocalIdentityUser(user.Id);
+    if (userResult.Data?.Customer == null)
+    {
+        return;
+    }
+
+    var wishlist = await WishlistService.GetWishlistOfCustomer(userResult.Data.Customer.Id);
+    var shoppingCart = await ShoppingCartService.GetShoppingCartOfCustomer(userResult.Data.Customer.Id);
+
+    var wishlistBitmap = new Dictionary<int, bool>();
+    var shoppingCartBitmap = new Dictionary<int, int>();
+
+    foreach (var book in Model.Items)
+    {
+        wishlistBitmap[book.Id] = false;
+        shoppingCartBitmap[book.Id] = 0;
+    }
+
+    if (wishlist != null)
+    {
+        foreach (var item in wishlist.WishlistItems)
+        {
+            if (item.BookId != null && wishlistBitmap.ContainsKey(item.BookId.Value))
+            {
+                wishlistBitmap[item.BookId.Value] = true;
+            }
+        }
+    }
+
+    if (shoppingCart != null)
+    {
+        foreach (var item in shoppingCart.ShoppingCartItems)
+        {
+            if (item.BookId != null && shoppingCartBitmap.ContainsKey(item.BookId.Value))
+            {
+                shoppingCartBitmap[item.BookId.Value] = item.Quantity;
+            }
+        }
+    }
+
+}
+
+<div class="container">
+    @await Html.PartialAsync("_SearchAndFilter", new SearchAndFilterViewModel
+           {
+               ControllerName = "Book",
+               Filter = new BookFilter(),
+               FilterLocation = "_BookFilter",
+               Title = "Books",
+               IncludeCreate = true,
+               SortOptions = new List<string> { "Title", "Price", "YearPublished" }
+           })
+
+    <div class="row">
+        @foreach (var book in Model.Items)
+        {
+            var isInWishlist = wishlistBitmap[book.Id];
+            var cartQuantity = shoppingCartBitmap[book.Id];
+
+            <div class="col-sm-4 d-flex align-items-stretch">
+                <div class="card mb-4">
+                    <div class="row no-gutters">
+                        <div class="col-md-4 d-flex align-items-center">
+                            <img class="card-img-top img-fluid" src="@book.ImageUrl" alt="Card image cap" style="max-width: 100%; height: auto; padding-left: 1em;">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body" style="padding-bottom: 60px; padding-right: 10px;">
+                                <h5 class="card-title">@book.Title</h5>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <p class="card-text">
+                                            <strong>@book.YearPublished</strong>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-8 text-right">
+                                        <p class="card-text">
+                                            <strong>
+                                                <i class="@GenreIconMapper.GetIcon(book.PrimaryGenre?.Name ?? "")"></i> @book.PrimaryGenre?.Name
+                                            </strong>
+                                        </p>
+                                    </div>
+                                </div>
+                                <p class="card-text" style="margin-bottom: 0.5rem;">@((book.Description?.Length ?? 0) > 100 ? book.Description?.Substring(0, 90) + "..." : book.Description)</p>
+                                <p class="card-text price h3 text-warning">
+                                    <span class="currency">$</span><span class="num">@book.Price</span>
+                                </p>
+                            </div>
+                            <div class="card-footer position-absolute bottom-0 end-0 bg-transparent border-0 d-flex justify-content-end" style="gap: 5px;">
+                                <a href="@Url.Action("Detail", "Book", new { id = book.Id })" class="btn btn-primary mr-2">See details</a> <!-- Add margin to the right -->
+                                @await Html.PartialAsync("../ShoppingCart/_CartButton", new CartItemViewModel { BookId = book.Id, Quantity = cartQuantity })
+
+                                @await Html.PartialAsync("../Wishlist/_WishlistButton", new WishlistItemViewModel { BookId = book.Id, IsInWishlist = isInWishlist })
+                            </div>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <div class="position-absolute top-0 end-0">
+                                    @await Html.PartialAsync("_ActionDropdown", new ActionDropdownViewModel { ControllerName = "Book", EntityId = book.Id })
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @await Html.PartialAsync("_Pagination", new PaginationData { Page = Model.Page, TotalPages = Model.TotalPages })
+</div>

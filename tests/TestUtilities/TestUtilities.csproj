@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EntityFrameworkCore.Testing.NSubstitute" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\BusinessLayer\BusinessLayer.csproj" />
+    <ProjectReference Include="..\..\src\DataAccessLayer\DataAccessLayer.csproj" />
+    <ProjectReference Include="..\..\src\WebAPI\WebAPI.csproj" />
+  </ItemGroup>
+
+</Project>

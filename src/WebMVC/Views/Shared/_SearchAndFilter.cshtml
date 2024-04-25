@@ -1,0 +1,117 @@
+﻿@model WebMVC.Models.Shared.SearchAndFilterViewModel
+
+<div class="flex justify-between items-center mb-4 w-full">
+    <h2 class="text-2xl font-bold text-white">@Model.Title</h2>
+    <form id="pageSearchForm" method="get" action="@Url.Action("Index", Model.ControllerName)">
+        <div class="input-group">
+            <input type="text" name="searchTerm" class="form-control" placeholder="Search @Model.Title.ToLowerInvariant()"/>
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+                @if (Model.SortOptions.Any())
+                {
+                    <button class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#sortModal">
+                        <i class="fas fa-sort"></i>
+                    </button>
+                }
+                @if (Model.Filter != null)
+                {
+                    <button class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#filterModal">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                }
+                @if (Model.IncludeCreate && User.IsInRole("Admin"))
+                {
+                    <a href="@Url.Action("Create", Model.ControllerName, new { area = "Admin" })" class="btn btn-primary">Create new</a>
+                }
+            </div>
+        </div>
+
+        @if (Model.Filter != null)
+        {
+            <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="filterModalLabel">Filter @Model.Title.ToLowerInvariant()</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            @await Html.PartialAsync(Model.FilterLocation, Model.Filter)
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.SortOptions.Any())
+        {
+            <div class="modal fade" id="sortModal" tabindex="-1" role="dialog" aria-labelledby="sortModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="sortModalLabel">Sort @Model.Title.ToLowerInvariant()</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="columnSelect">Select Column</label>
+                                <select class="form-control" id="columnSelect" name="sortColumn">
+                                    @foreach (var option in Model.SortOptions)
+                                    {
+                                        <option value="@option">@option</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="sortOrder">Sort Order</label>
+                                <select class="form-control" id="sortOrder" name="sortOrder">
+                                    <option value="asc">Ascending</option>
+                                    <option value="desc">Descending</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Apply Sort</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+
+    </form>
+
+    <script>
+        $(document).ready(function () {
+            $('#pageSearchForm .btn-outline-secondary').click(function (e) {
+                if ($(this).children('i').hasClass('fa-search')) {
+                    var searchTerm = $.trim($('#pageSearchForm input[name="searchTerm"]').val());
+                    if (!searchTerm) {
+                        showPopup('Please provide a search term.', 'hint');
+                        e.preventDefault();
+                    }
+                }
+            });
+
+            $('#pageSearchForm').submit(function () {
+                $(this).find(':input').each(function () {
+                    var input = $(this);
+                    if (!input.val()) {
+                        input.prop('disabled', true);
+                    }
+                });
+            });
+        });
+    </script>
+</div>

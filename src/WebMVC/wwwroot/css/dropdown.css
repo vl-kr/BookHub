@@ -1,0 +1,14 @@
+.card-dropdown {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: none;
+}
+
+.card:hover .card-dropdown {
+    display: block;
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+}

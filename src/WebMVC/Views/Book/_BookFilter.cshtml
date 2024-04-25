@@ -1,0 +1,68 @@
+﻿@using BusinessLayer.Models
+@using BusinessLayer.Services.Filtering.AuthorFilters
+@using BusinessLayer.Services.Filtering.GenreFilters
+@using BusinessLayer.Services.Filtering.PublisherFilters
+@using BusinessLayer.Services.Interfaces
+@model BusinessLayer.Services.Filtering.BookFilters.BookFilter
+@inject IPublisherService PublisherService
+@inject IAuthorService AuthorService
+@inject IGenreService GenreService
+
+@{
+    var genreResult = await GenreService.GetGenres(new PageOptions(), new GenreFilter());
+    var authorResult = await AuthorService.GetAuthors(new PageOptions(), new AuthorFilter());
+    var publisherResult = await PublisherService.GetPublishers(new PageOptions(), new PublisherFilter());
+
+    var genreList = genreResult.Data?.Select(g => new SelectListItem(g.Name, g.Id.ToString())) ?? Enumerable.Empty<SelectListItem>();
+    var authorList = authorResult.Data?.Select(a => new SelectListItem(a.Name, a.Id.ToString())) ?? Enumerable.Empty<SelectListItem>();
+    var publisherList = publisherResult.Data?.Select(p => new SelectListItem(p.Name, p.Id.ToString())) ?? Enumerable.Empty<SelectListItem>();
+}
+
+<div style="width: 100%; float: left; padding: 10px;">
+    <div class="form-group">
+        <label for="priceFrom">Price from</label>
+        <input type="number" class="form-control" id="priceFrom" name="bookFilter.PriceFrom" value="@Model.PriceFrom ?? 0" min="0">
+    </div>
+    <div class="form-group">
+        <label for="priceTo">Price to</label>
+        <input type="number" class="form-control" id="priceTo" name="bookFilter.PriceTo" value="@Model.PriceTo ?? 100" min="0">
+    </div>
+    <div class="form-group">
+        <label for="yearPublishedFrom">Year published from</label>
+        <input type="number" class="form-control" id="yearPublishedFrom" name="bookFilter.YearPublishedFrom" value="@Model.YearPublishedFrom ?? 1900" min="1900" max="@DateTime.Now.Year">
+    </div>
+    <div class="form-group">
+        <label for="yearPublishedTo">Year published to</label>
+        <input type="number" class="form-control" id="yearPublishedTo" name="bookFilter.YearPublishedTo" value="@Model.YearPublishedTo ?? DateTime.Now.Year" min="1900" max="@DateTime.Now.Year">
+    </div>
+    <div class="form-group">
+        <label for="authors">Authors</label>
+        <select class="form-control" id="authors" name="bookFilter.Authors">
+            <option value="">Select an author</option>
+            @foreach (var author in authorList)
+            {
+                <option value="@author.Text">@author.Text</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="publishers">Publishers</label>
+        <select class="form-control" id="publishers" name="bookFilter.Publishers">
+            <option value="">Select a publisher</option>
+            @foreach (var publisher in publisherList)
+            {
+                <option value="@publisher.Text">@publisher.Text</option>
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="genres">Genres</label>
+        <select class="form-control" id="genres" name="bookFilter.Genres">
+            <option value="">Select a genre</option>
+            @foreach (var genre in genreList)
+            {
+                <option value="@genre.Text">@genre.Text</option>
+            }
+        </select>
+    </div>
+</div>

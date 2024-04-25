@@ -1,0 +1,47 @@
+﻿@using WebMVC.Models.Shared
+@model BusinessLayer.Models.PaginationObject<BusinessLayer.DTOs.Responses.LocalIdentityUser.LocalIdentityUserResponse>
+
+@{
+    ViewBag.Title = "User list";
+    Layout = "_Layout";
+}
+
+<head>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<div class="container">
+    @await Html.PartialAsync("_SearchAndFilter", new SearchAndFilterViewModel
+           {
+               ControllerName = "Account",
+               Filter = null,
+               FilterLocation = null,
+               Title = "Users",
+               SortOptions = new List<string> { "Email", "UserName" }
+           })
+
+    <div class="flex flex-col gap-4 w-full mt-4">
+        @foreach (var user in Model.Items)
+        {
+            <div class="col-sm-4 mb-4">
+                <div class="card">
+                    <div class="card-body position-relative">
+                        <h5 class="card-title">@user.UserName</h5>
+                        <div class="dropdown card-dropdown">
+                            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="@Url.Action("ResetPassword", "Account", new { area = "Admin", id = user.Id })">Reset password</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @await Html.PartialAsync("_Pagination", new PaginationData { Page = Model.Page, TotalPages = Model.TotalPages })
+    </div>
+</div>

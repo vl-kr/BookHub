@@ -1,0 +1,42 @@
+﻿﻿@using System.Linq.Expressions
+@using BusinessLayer.Models
+@using BusinessLayer.Services.Interfaces
+@model WebMVC.Areas.Admin.Models.Order.OrderUpdateViewModel
+@inject IOrderStatusService OrderStatusService
+
+@{
+    ViewBag.Title = "Edit book";
+    Layout = "_Layout";
+
+    var orderStatusResult = await OrderStatusService.GetOrderStatuses(new PageOptions());
+
+    var orderStatusList = orderStatusResult.Data?.Select(g => new SelectListItem(g.Name, g.Id.ToString(), Model.OrderStatusId == g.Id)) ?? Enumerable.Empty<SelectListItem>();
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="container">
+        <h4>Edit an order</h4>
+        <hr/>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.OrderStatusId, new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.DropDownListFor(model => model.OrderStatusId, orderStatusList, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.OrderStatusId, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group" style="display: flex; justify-content: center; margin-top: 10px;">
+                    <input type="submit" value="Save" class="btn btn-primary"/>
+                </div>
+            </div>
+        </div>
+    </div>
+}

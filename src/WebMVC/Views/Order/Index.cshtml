@@ -1,0 +1,49 @@
+﻿@using WebMVC.Models.Shared
+@using BusinessLayer.Services.Filtering.OrderFilters
+@using WebMVC.Helpers
+@model BusinessLayer.Models.PaginationObject<DataAccessLayer.Entities.Order>
+
+@{
+    ViewBag.Title = "Order list";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    @await Html.PartialAsync("_SearchAndFilter", new SearchAndFilterViewModel
+           {
+               ControllerName = "Order",
+               Filter = new OrderFilter(),
+               FilterLocation = "~/Views/Order/_OrderFilter.cshtml",
+               Title = "Orders",
+               SortOptions = new List<string> { "TotalPrice" }
+           })
+
+    <div class="flex flex-col gap-4 w-full">
+        @foreach (var order in Model.Items)
+        {
+            <div class="col-sm-4 d-flex align-items-stretch">
+                <div class="card mb-4 shadow-sm" style="width: 18rem;">
+                    <div class="card-header bg-primary text-white">
+                        <i class="fas fa-clipboard-list fa-2x"></i>
+                        <h5 class="card-title ml-2 d-inline-block align-middle">Order ID: @order.Id</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            <strong>Status:</strong> <span class="badge" style="background-color: @OrderStatusMapper.ColorMap[order.Status.Name];">@order.Status.Name</span><br>
+                            <strong>Price:</strong> <span class="currency">$@order.TotalPrice</span><br>
+                            <strong>Is paid:</strong> @order.IsPaid<br>
+                            <strong>Order Date:</strong> @order.CreatedAt.ToString("MM/dd/yyyy")<br>
+                        </p>
+                        <a href="@Url.Action("Detail", "Order", new { id = order.Id, Area = "" })" class="btn btn-primary">See details</a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            @await Html.PartialAsync("_ActionDropdown", new ActionDropdownViewModel { ControllerName = "Order", EntityId = order.Id })
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        @await Html.PartialAsync("_Pagination", new PaginationData { Page = Model.Page, TotalPages = Model.TotalPages })
+    </div>
+</div>
