@@ -1,4 +1,4 @@
-# bookhub
+# BookHub
 
 A bookstore e-shop website with separate API. Customers can sort and filter by authors, publishers, and genres. 
 After registration, customer can also see their purchase history, rate books, and make wishlists. 
